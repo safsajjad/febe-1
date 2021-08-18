@@ -1,0 +1,141 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+  labels:
+    app: frontend-app
+spec:
+  template:
+    metadata:
+      labels:
+        app: frontend-app
+    spec:
+      containers:
+        - name: frontend
+          image: testfe1:latest
+          imagePullPolicy: Never
+  replicas: 1
+  selector:
+      matchLabels:
+        app: frontend-app
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: frontend
+  labels:
+    app: frontend-app
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8080
+    targetPort: 8080
+    name: frontend
+  selector:
+    app: frontend-app
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: frontend-ingress
+spec:
+  rules:
+    - host: saf.frontend
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: frontend
+                port:
+                  number: 8080
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend1
+  labels:
+    app: backend1-app
+spec:
+  template:
+    metadata:
+      labels:
+        app: backend1-app
+    spec:
+      containers:
+        - name: backend1
+          image: testbe1:latest
+          imagePullPolicy: Never
+  replicas: 1
+  selector:
+      matchLabels:
+        app: backend1-app
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: backend1
+  labels:
+    app: backend1-app
+spec:
+  type: ClusterIP
+  ports:
+  - port: 80
+    targetPort: 8081
+    name: backend1
+  selector:
+    app: backend1-app
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: backend-ingress
+spec:
+  rules:
+    - host: backend1
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: backend1
+                port:
+                  number: 80
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend2
+  labels:
+    app: backend2-app
+spec:
+  template:
+    metadata:
+      labels:
+        app: backend2-app
+    spec:
+      containers:
+        - name: backend2
+          image: testbe2:latest
+          imagePullPolicy: Never
+  replicas: 1
+  selector:
+      matchLabels:
+        app: backend2-app
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: backend2
+  labels:
+    app: backend2-app
+spec:
+  type: ClusterIP
+  ports:
+  - port: 80
+    targetPort: 8082
+    name: backend2
+  selector:
+    app: backend2-app
